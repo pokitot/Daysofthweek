@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day of Week Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #app {
+            z-index: 1;
+            text-align: center;
+        }
+
+        input {
+            background-color: transparent;
+            border: 1px solid #0f0;
+            padding: 10px;
+            color: #0f0;
+        }
+
+        button {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #00ff00;
+            color: #000;
+        }
+    </style>
+    <script>
+        window.addEventListener('load', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.body.appendChild(canvas);
+
+            const columns = Math.floor(canvas.width / 15) + 1;
+            const drops = Array(columns).fill(0);
+
+            function randomChar() {
+                return String.fromCharCode(0x30A0 + Math.random() * 96);
+            }
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#0f0';
+                ctx.font = '15px Roboto Mono';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const char = randomChar();
+                    ctx.fillText(char, i * 15, drops[i] * 15);
+
+                    if (Math.random() > 0.99) {
+                        drops[i] = 0;
+                    }
+
+                    drops[i]++;
+                }
+            }
+
+            setInterval(drawMatrix, 75);
+        });
+
+        async function getDayOfWeek() {
+            const date = document.getElementById('date-input').value;
+            const response = await fetch('/get_day', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `date=${encodeURIComponent(date)}`
+            });
+            const dayOfWeek = await response.text();
+            document.getElementById('result').innerText = `Day of the Week: ${dayOfWeek}`;
+        }
+    </script>
+</head>
+<body>
+    <div id="app">
+        <h1>Day of Week Calculator</h1>
+        <input type="text" id="date-input" placeholder="MM/DD/YYYY">
+        <button onclick="getDayOfWeek()">Find Day of Week</button>
+        <div id="result"></div>
+    </div>
+</body>
+</
